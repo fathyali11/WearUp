@@ -60,5 +60,18 @@ public class ProductRecommenderRepository : IProductRecommenderRepository
 
         return prediction.Score;
     }
+
+    public List<float> PredictBatch(string userId, IEnumerable<int> productIds)
+    {
+        if (_model == null)
+            throw new InvalidOperationException("Model has not been trained.");
+
+        var inputs = productIds.Select(p => new ProductRatingInput { UserId = userId, ProductId = p }).ToList();
+        var data = _mlContext.Data.LoadFromEnumerable(inputs);
+        var predictions = _model.Transform(data);
+        return _mlContext.Data.CreateEnumerable<ProductPrediction>(predictions, reuseRowObject: false)
+                              .Select(x => x.Score)
+                              .ToList();
+    }
 }
 
