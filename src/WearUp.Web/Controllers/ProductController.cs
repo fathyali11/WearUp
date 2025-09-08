@@ -11,6 +11,15 @@ public class ProductController(IProductRepository _productRepositoy) : Controlle
         ViewData["SortOrder"] = request.SortOrder;
         return View(response);
     }
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> LoadRecommendations(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var products=await _productRepositoy.GetRecommendationsProducts(userId!, cancellationToken);
+        return PartialView("_RecommendationsPartial", products);
+    }
+
     [HttpGet]
     public async Task<IActionResult> LoadDiscover(CancellationToken cancellationToken)
     {
