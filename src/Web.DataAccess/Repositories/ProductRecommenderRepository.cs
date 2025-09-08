@@ -30,21 +30,22 @@ public class ProductRecommenderRepository : IProductRecommenderRepository
 
         var options = new MatrixFactorizationTrainer.Options
         {
-            MatrixColumnIndexColumnName = nameof(ProductRatingInput.UserId),
-            MatrixRowIndexColumnName = nameof(ProductRatingInput.ProductId),
+            MatrixColumnIndexColumnName = "UserKey",
+            MatrixRowIndexColumnName = "ProductKey",
             LabelColumnName = "Label",
             NumberOfIterations = 20,
             ApproximationRank = 100
         };
 
-        var pipeline = _mlContext.Recommendation().Trainers.MatrixFactorization(options);
+        var pipeline = _mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: "UserKey", inputColumnName: nameof(ProductRatingInput.UserId))
+            .Append(_mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: "ProductKey", inputColumnName: nameof(ProductRatingInput.ProductId)))
+            .Append(_mlContext.Recommendation().Trainers.MatrixFactorization(options));
 
         _model = pipeline.Fit(trainData);
 
         Directory.CreateDirectory(Path.GetDirectoryName(_modelPath)!);
         _mlContext.Model.Save(_model, trainData.Schema, _modelPath);
     }
-
     public float Predict(string userId, int productId)
     {
         if (_model == null)
@@ -69,9 +70,10 @@ public class ProductRecommenderRepository : IProductRecommenderRepository
         var inputs = productIds.Select(p => new ProductRatingInput { UserId = userId, ProductId = p }).ToList();
         var data = _mlContext.Data.LoadFromEnumerable(inputs);
         var predictions = _model.Transform(data);
-        return _mlContext.Data.CreateEnumerable<ProductPrediction>(predictions, reuseRowObject: false)
+        var result= _mlContext.Data.CreateEnumerable<ProductPrediction>(predictions, reuseRowObject: false)
                               .Select(x => x.Score)
                               .ToList();
+        return result;
     }
 }
 

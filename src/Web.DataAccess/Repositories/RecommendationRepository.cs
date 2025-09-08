@@ -30,13 +30,15 @@ public class RecommendationRepository(
                 {
                     var scores = _productRecommenderRepository.PredictBatch(userId, candidates);
                     result = candidates.Zip(scores, (id, score) => (id, score))
+                    .Where(x => !float.IsNaN(x.Item2) && !float.IsInfinity(x.Item2))
                                        .OrderByDescending(x => x.score)
                                        .Take(5)
                                        .ToList();
                 }
                 catch (InvalidOperationException)
                 {
-                    result = candidates.Take(5).Select(p => (p, 0.0f)).ToList();
+                    result = candidates.Take(5).Select(p => (p, 0.0f))
+                    .ToList();
                 }
 
                 return await Task.FromResult(result);
