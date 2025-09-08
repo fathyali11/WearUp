@@ -1,0 +1,39 @@
+﻿@model List<DiscoverProductVM>
+<div class="row">
+    <div class="col-md-12">
+        <div class="title">
+            <h4><b>Recommended For You</b></h4>
+        </div>
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var rec in Model)
+                {
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <img class="card-img-top" src="@rec.ImageName" alt="@rec.Name">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">@rec.Name</h6>
+                                <p class="card-text text-muted">&euro; @rec.Price</p>
+                                <a href="#" class="btn btn-sm btn-primary add-to-cart"
+                                   data-product-id="@rec.Id"
+                                   data-product-name="@rec.Name"
+                                   data-image-name="@rec.ImageName"
+                                   data-price="@rec.Price"
+                                   data-count="1">
+                                    <i class="bi bi-cart"></i> Add to cart
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col text-center">
+                    <p class="text-muted">No recommendations available right now.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -15,7 +15,7 @@ public interface IProductRepository
     Task<OneOf<List<ValidationError>, bool>> UpdateProductAsync(EditProductVM model, CancellationToken cancellationToken = default);
     Task<bool> DeleteProductAsync(int id, CancellationToken cancellationToken = default);
     Task<PaginatedList<DiscoverProductVM>> SearchInProductsInHomeAsync(string query, CancellationToken cancellationToken = default);
-
+    Task<List<DiscoverProductVM>> GetRecommendationsProducts(string userId, CancellationToken cancellationToken = default);
 
     Task RemoveKeys(CancellationToken cancellationToken = default);
 }

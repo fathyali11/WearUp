@@ -88,6 +88,20 @@ public class ProductRatingRepository(ApplicationDbContext _context
         return ratings is not null ? ratings : [];
     }
 
+    public async Task<IEnumerable<ProductRating>> GetAllProductRatingsAsync(CancellationToken cancellationToken = default)
+    {
+        var cacheKey = ProductRatingCacheKeys.AllRatings;
+        var ratings = await _hybridCache.GetOrCreateAsync(cacheKey,
+            async _ => await _context.ProductRatings
+            .AsNoTracking()
+            .Distinct()
+            .ToListAsync(cancellationToken),
+            tags: [ProductRatingCacheKeys.RatingsTag],
+            cancellationToken: cancellationToken);
+
+        return ratings is not null ? ratings : [];
+    }
+
     private async Task RemoveKeys(CancellationToken cancellationToken)
     {
         await _hybridCache.RemoveByTagAsync(ProductRatingCacheKeys.RatingsTag, cancellationToken);

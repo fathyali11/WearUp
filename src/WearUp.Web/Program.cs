@@ -7,6 +7,7 @@ var app = builder.Build();
 
 await DatabaseInitializer.InitializeAsync(app.Services);
 
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -15,6 +16,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseHangfireDashboard("/hangfire");
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    ModelTrainerSchedule.Train(recurringJobManager);
+}
 app.UseRateLimiter();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
