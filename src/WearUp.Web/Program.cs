@@ -16,7 +16,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseHangfireDashboard("/hangfire");
-await ModelTrainer.Train(app.Services);
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    ModelTrainerSchedule.Train(recurringJobManager);
+}
 app.UseRateLimiter();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
