@@ -2,86 +2,93 @@
 @{
     Layout = "_CartLayout";
 }
-<div class="card">
-    <div class="row">
-        <div class="col-md-8 cart">
-            <div class="title">
-                <div class="row d-flex align-items-center justify-content-between">
-                    <div class="col"><h4><b>Shopping Cart</b></h4></div>
-                    @if (Model.Items.Any())
-                    {
+<div class="container my-5">
+    <div class="card">
+        <div class="row">
+            <div class="col-md-8 cart">
+                <div class="title">
+                    <div class="row d-flex align-items-center justify-content-between">
+                        <div class="col"><h4><b>Shopping Cart</b></h4></div>
+                        @if (Model.Items.Any())
+                        {
+                            <div class="col d-flex justify-content-center">
+                                <span>@Model.Items.Count() items</span>
+                            </div>
+                            <div class="col d-flex justify-content-center"><i data-cart-id="@Model.Id" class="bi bi-trash3-fill clear"></i></div>
+                        }
                         <div class="col d-flex justify-content-center">
-                            <span>@Model.Items.Count() items</span>
+                            <a asp-action="Index" asp-controller="Wishlists">
+                                <i class="bi bi-house-heart-fill fs-5"></i>
+                            </a>
                         </div>
-                        <div class="col d-flex justify-content-center"><i data-cart-id="@Model.Id" class="bi bi-trash3-fill clear"></i></div>
-                    }
-                    <div class="col d-flex justify-content-center">
-                        <a asp-action="Index" asp-controller="Wishlists">
-                            <i class="bi bi-house-heart-fill fs-5"></i>
-                        </a>
                     </div>
                 </div>
+                @if (Model.Items.Any())
+                {
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="row border-top border-bottom">
+                            <div class="row main align-items-center">
+                                <div class="col-2"><img class="img-fluid" alt="product-img" src="@item.ImageName"></div>
+                                <div class="col">
+                                    <div class="row text-muted">Shirt</div>
+                                    <div class="row">Cotton T-shirt</div>
+                                </div>
+                                <div class="col">
+                                    <a href="#" class="decrease-item text-decoration-none" data-cart-id="@Model.Id" data-item-id="@item.ProductId">-</a>
+                                    <a href="#" class="border item-count text-decoration-none">@item.Count</a>
+                                    <a href="#" class="increase-item text-decoration-none" data-cart-id="@Model.Id" data-item-id="@item.ProductId">+</a>
+                                </div>
+
+                                <div class="col">&euro; @item.Price <span class="close">&#10005;</span></div>
+                                <div class="col"><i data-item-id="@item.ProductId" data-cart-id="@Model.Id" class="bi bi-trash3-fill delete"></i></div>
+                            </div>
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col text-center">
+                            <h5>Your cart is empty</h5>
+                        </div>
+                    </div>
+                }
+
+                <div class="back-to-shop">
+                    <a asp-action="Index" asp-controller="Home">
+                        <span class="text-muted">Back to shop</span>
+                    </a>
+                </div>
             </div>
+
             @if (Model.Items.Any())
             {
-                @foreach (var item in Model.Items)
-                {
-                    <div class="row border-top border-bottom">
-                        <div class="row main align-items-center">
-                            <div class="col-2"><img class="img-fluid" alt="product-img" src="@item.ImageName"></div>
-                            <div class="col">
-                                <div class="row text-muted">Shirt</div>
-                                <div class="row">Cotton T-shirt</div>
-                            </div>
-                            <div class="col">
-                                <a href="#" class="decrease-item text-decoration-none" data-cart-id="@Model.Id" data-item-id="@item.ProductId">-</a>
-                                <a href="#" class="border item-count text-decoration-none">@item.Count</a>
-                                <a href="#" class="increase-item text-decoration-none" data-cart-id="@Model.Id" data-item-id="@item.ProductId">+</a>
-                            </div>
-
-                            <div class="col">&euro; @item.Price <span class="close">&#10005;</span></div>
-                            <div class="col"><i data-item-id="@item.ProductId" data-cart-id="@Model.Id" class="bi bi-trash3-fill delete"></i></div>
+                <div class="col-md-4 summary">
+                    <div><h5><b>Summary</b></h5></div>
+                    <hr>
+                    <div class="row">
+                        <div class="col" style="padding-left:0;">
+                            <span>ITEMS @Model.Items.Count()</span>
                         </div>
-                    </div>
 
-                }
-            }
-            else
-            {
-                <div class="row">
-                    <div class="col text-center">
-                        <h5>Your cart is empty</h5>
+                        <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
+                            <div class="col">TOTAL PRICE</div>
+                            <div id="total-price" class="col text-right">&euro; @Model.TotalPrice</div>
+                        </div>
+                        <form asp-action="Checkout" asp-controller="Payments" method="post">
+                            <button type="submit" class="btn btn-success">Proceed to Checkout</button>
+                        </form>
                     </div>
                 </div>
             }
-       
-            <div class="back-to-shop">
-                <a asp-action="Index" asp-controller="Home">
-                <span class="text-muted">Back to shop</span>
-                </a>
-            </div>
         </div>
-
-       @if(Model.Items.Any())
-        {
-            <div class="col-md-4 summary">
-                <div><h5><b>Summary</b></h5></div>
-                <hr>
-                <div class="row">
-                    <div class="col" style="padding-left:0;">
-                        <span>ITEMS @Model.Items.Count()</span>
-                    </div>
-
-                    <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
-                        <div class="col">TOTAL PRICE</div>
-                        <div id="total-price" class="col text-right">&euro; @Model.TotalPrice</div>
-                    </div>
-                    <form asp-action="Checkout" asp-controller="Payments" method="post">
-                        <button type="submit" class="btn btn-success">Proceed to Checkout</button>
-                    </form>
-                </div>
-            </div>
-        }
+    </div>
+    <div class="recommendations-section mt-5">
+        <h3 class="mb-3 text-center">You Might Also Like</h3>
+        <div class="recommendations">
+        </div>
     </div>
 </div>
 @section Scripts {
@@ -91,4 +98,10 @@
         <script src="~/carts/js/increase.js"  asp-append-version="true"></script>
         <script src="~/carts/js/delete.js" asp-append-version="true"></script>
         <script src="~/carts/js/clear.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function(){
+            $(".recommendations").load("/Product/LoadRecommendations")
+        })
+    </script>
 }
