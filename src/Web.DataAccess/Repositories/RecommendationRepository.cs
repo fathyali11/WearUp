@@ -34,6 +34,9 @@ public class RecommendationRepository(
                                        .OrderByDescending(x => x.score)
                                        .Take(5)
                                        .ToList();
+
+                    if (!result.Any())
+                        result = candidates.Take(5).Select(p => (p, 0.0f)).ToList();
                 }
                 catch (InvalidOperationException)
                 {
