@@ -2,4 +2,5 @@
 public interface IModelTrainerRepository
 {
     Task ExcuteScheduleAsync();
+    Task EnqueueModelToTrain();
 }

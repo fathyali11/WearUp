@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Train";
+    ViewData["Head"] = "Train Model";
+    ViewData["PageTitle"] = "Training of model";
+    Layout = "_AdminLayout";
+}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm text-center">
+                <div class="card-header">
+                    <h3>Machine Learning</h3>
+                </div>
+                <div class="card-body p-5">
+                    <i class="bi bi-robot" style="font-size: 4rem; color: #0d6efd;"></i>
+                    <h4 class="card-title mt-3">Train Recommendation Model</h4>
+                    <p class="card-text text-muted">
+                        Click the button below to start the model training process manually.
+                        This is a resource-intensive task that will run in the background.
+                        The existing model will continue to serve recommendations until the new one is ready.
+                    </p>
+
+                    <form id="training-form" asp-action="Excute" asp-controller="MachineLearning" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit" class="btn btn-primary btn-lg mt-3">
+                            <span class="button-icon"><i class="bi bi-play-circle-fill me-2"></i></span>
+                            <span class="button-text">Start Manual Training</span>
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer text-muted">
+                    You can monitor the job's progress in the Hangfire Dashboard.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#training-form').on('submit', function (event) {
+                // 1. Prevent the default page reload
+                event.preventDefault();
+
+                var form = $(this);
+                var button = form.find('button[type="submit"]');
+                var buttonText = button.find('.button-text');
+                var buttonIcon = button.find('.button-icon');
+
+                // 2. Make the AJAX call to the controller
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: {
+                        // Include the anti-forgery token in the request
+                        '__RequestVerificationToken': form.find('input[name="__RequestVerificationToken"]').val()
+                    },
+                    beforeSend: function () {
+                        // Disable the button and show a spinner for feedback
+                        button.prop('disabled', true);
+                        buttonIcon.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                        buttonText.text('Starting Job...');
+                    },
+                    success: function (response) {
+                        // 3. Show a success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Job Enqueued!',
+                            text: 'The model training has been started in the background.',
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        // 4. Show an error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Something went wrong. You may not have permission to perform this action.',
+                        });
+                    },
+                    complete: function () {
+                        // 5. Re-enable the button
+                        button.prop('disabled', false);
+                        buttonIcon.html('<i class="bi bi-play-circle-fill me-2"></i>');
+                        buttonText.text('Start Manual Training');
+                    }
+                });
+            });
+        });
+    </script>
+}
